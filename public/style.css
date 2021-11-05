@@ -1,6 +1,17 @@
 * {
     box-sizing: border-box;
     font-family: system-ui;
+    margin: 0;
+}
+
+h1 {
+    font-size: 9em;
+    line-height: 1em;
+    margin-bottom: 60px;
+}
+
+h3 {
+    font-size: 2em;
 }
 
 h1,
@@ -11,8 +22,18 @@ h5 {
     font-weight: normal;
 }
 
-hr {
-    border: 1px solid black;
+body {
+    margin: 10px 30px;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+}
+
+form {
+    align-self: flex-end;
+    margin-right: 30px;
 }
 
 canvas {
@@ -22,4 +43,18 @@ canvas {
 
 button {
     display: block;
+    padding: 13px 25px 15px 25px;
+    border-radius: 60px;
+    border: none;
+    font-size: 1.2em;
+    background-color: chartreuse;
+}
+
+footer {
+    margin-top: 60px;
+}
+
+hr {
+    border: 1px solid black;
+    margin-bottom: 10px;
 }

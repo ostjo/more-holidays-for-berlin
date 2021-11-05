@@ -2,13 +2,11 @@ const express = require("express");
 const app = express();
 const db = require("./db.js");
 const hb = require("express-handlebars");
-// const cookieParser = require("cookie-parser");
 const cookieSession = require("cookie-session");
 
 //-------------------------------------------------------------- MIDDLEWARE -----------------------------------------------------------//
 
 //-------------------------------- Cookies Setup ---------------------------------//
-// app.use(cookieParser());
 app.use(
     cookieSession({
         secret: `I know nothing.`, // used to generate the second cookie used to verify the integrity of the first cookie
@@ -28,6 +26,7 @@ app.use((req, res, next) => {
     next();
 });
 
+//-------------------------------- req.body access ------------------------------//
 app.use(
     express.urlencoded({
         extended: false,
@@ -41,21 +40,27 @@ app.get("/", (req, res) => {
 });
 
 app.get("/petition", (req, res) => {
+    // if user hasn't signed yet
     if (!req.session.signatureId) {
+        // render petition site, without error partial
         res.render("petition", {
             error: false,
         });
     } else {
+        // has signed already, so take user to thanks page
         res.redirect("/petition/thanks");
     }
 });
 
 app.post("/petition", (req, res) => {
-    db.addSigner(req.body.first_name, req.body.last_name, req.body.signature)
-        .then((result) => {
-            // res.cookie("signed_in", "true");
-            req.session.signatureId = result.rows[0].id;
-            console.log(req.session);
+    // grab input data from the req.body
+    const { first_name, last_name, signature } = req.body;
+    // when posting to petition page, start addSigner() promise to add input to the database
+    db.addSigner(first_name, last_name, signature)
+        .then(({ rows }) => {
+            // addSigner resolved
+            // set a cookie with a reference to the signer (primary key) & redirect to thanks
+            req.session.signatureId = rows[0].id;
             res.redirect("/petition/thanks");
         })
         .catch((err) => {
@@ -68,46 +73,51 @@ app.post("/petition", (req, res) => {
 });
 
 app.get("/petition/thanks", (req, res) => {
-    db.getNumOfSigners()
-        .then((count) => {
-            if (req.session.signatureId) {
-                console.log("Total number of signers: ", count.rows[0].count);
-                db.getSignature(req.session.signatureId)
-                    .then((signer) => {
-                        res.render("thanks", {
-                            count: count.rows[0].count,
-                            src: signer.rows[0].signature,
-                            name: signer.rows[0].first_name,
-                        });
-                    })
-                    .catch((err) =>
-                        console.log("error in getSignature: ", err)
-                    );
-            } else {
-                res.redirect("/petition");
-            }
-        })
-        .catch((err) => {
-            console.log("Error in getNumOfSigners: ", err);
-            res.statusCode(500);
-        });
+    // if user already signed in, get user's signature dataURL and the total count of signers from our db asynchronously
+    if (req.session.signatureId) {
+        Promise.all([
+            db.getNumOfSigners(),
+            db.getSignature(req.session.signatureId),
+        ])
+            .then((result) => {
+                const [count, signer] = result;
+                // both resolved, so start rendering thanks template with the total count and the signer's info
+                res.render("thanks", {
+                    count: count.rows[0].count,
+                    signer: {
+                        name: signer.rows[0].first_name,
+                        signature: signer.rows[0].signature,
+                    },
+                });
+            })
+            .catch((err) => {
+                console.log("error in getSignature or getNumOfSigner: ", err);
+                res.sendStatus(500);
+            });
+    } else {
+        // user has not yet signed in --> redirect to /petition
+        res.redirect("/petition");
+    }
 });
 
 app.get("/petition/signers", (req, res) => {
-    db.getSigners()
-        .then(({ rows }) => {
-            if (req.session.signatureId) {
+    if (req.session.signatureId) {
+        // user already signed, so start getSigners() promise to receive all signers (surname, lastname)
+        db.getSigners()
+            .then(({ rows }) => {
+                // getSigners() resolved, so render the signers template with the rows
                 res.render("signers", {
                     rows,
                 });
-            } else {
-                res.redirect("/petition");
-            }
-        })
-        .catch((err) => {
-            console.log("error in getSigners: ", err);
-            res.statusCode(500);
-        });
+            })
+            .catch((err) => {
+                console.log("error in getSigners: ", err);
+                res.sendStatus(500);
+            });
+    } else {
+        // user has not signed yet, so redirect to /petition
+        res.redirect("/petition");
+    }
 });
 
 app.get("/petition/logout", (req, res) => {

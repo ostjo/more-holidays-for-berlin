@@ -1,12 +1,13 @@
+<script src="/script.js" defer></script>
 <h1>Sign our super important petition</h1>
-<h2>Please sign this</h2>
 <form method="POST">
+    <h2>Please sign this</h2>
     <div class="name-fields">
         <input name="first_name"></input>
         <input name="last_name"></input>
     </div>
     <input id="signature" name="signature" type="hidden"></input>
-    <canvas id="canvas" width="400px" height="150px"></canvas>
+    <canvas id="canvas" width="600px" height="150px"></canvas>
     <button type="submit">submit</button>
     {{#if error}}
     {{>submitError}}
