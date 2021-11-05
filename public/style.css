@@ -1,0 +1,25 @@
+* {
+    box-sizing: border-box;
+    font-family: system-ui;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+    font-weight: normal;
+}
+
+hr {
+    border: 1px solid black;
+}
+
+canvas {
+    border: 1px solid black;
+    margin: 20px 0;
+}
+
+button {
+    display: block;
+}
