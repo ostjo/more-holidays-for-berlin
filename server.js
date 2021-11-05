@@ -2,12 +2,19 @@ const express = require("express");
 const app = express();
 const db = require("./db.js");
 const hb = require("express-handlebars");
-const cookieParser = require("cookie-parser");
+// const cookieParser = require("cookie-parser");
+const cookieSession = require("cookie-session");
 
 //-------------------------------------------------------------- MIDDLEWARE -----------------------------------------------------------//
 
 //-------------------------------- Cookies Setup ---------------------------------//
-app.use(cookieParser());
+// app.use(cookieParser());
+app.use(
+    cookieSession({
+        secret: `I know nothing.`, // used to generate the second cookie used to verify the integrity of the first cookie
+        maxAge: 1000 * 60 * 60 * 24 * 14, // this makes the cookie survive two weeks of inactivity
+    })
+);
 
 //------------------------------- Handlebars Setup -------------------------------//
 app.engine("handlebars", hb());
@@ -29,8 +36,12 @@ app.use(
 
 //-------------------------------------------------------------------------------------------------------------------------------------//
 
+app.get("/", (req, res) => {
+    res.redirect("/petition");
+});
+
 app.get("/petition", (req, res) => {
-    if (!req.cookies.signed_in) {
+    if (!req.session.signatureId) {
         res.render("petition", {
             error: false,
         });
@@ -41,8 +52,10 @@ app.get("/petition", (req, res) => {
 
 app.post("/petition", (req, res) => {
     db.addSigner(req.body.first_name, req.body.last_name, req.body.signature)
-        .then(() => {
-            res.cookie("signed_in", "true");
+        .then((result) => {
+            // res.cookie("signed_in", "true");
+            req.session.signatureId = result.rows[0].id;
+            console.log(req.session);
             res.redirect("/petition/thanks");
         })
         .catch((err) => {
@@ -57,11 +70,19 @@ app.post("/petition", (req, res) => {
 app.get("/petition/thanks", (req, res) => {
     db.getNumOfSigners()
         .then((count) => {
-            if (req.cookies.signed_in) {
-                console.log("Total number of signers: ", count);
-                res.render("thanks", {
-                    count: count.rows[0].count,
-                });
+            if (req.session.signatureId) {
+                console.log("Total number of signers: ", count.rows[0].count);
+                db.getSignature(req.session.signatureId)
+                    .then((signer) => {
+                        res.render("thanks", {
+                            count: count.rows[0].count,
+                            src: signer.rows[0].signature,
+                            name: signer.rows[0].first_name,
+                        });
+                    })
+                    .catch((err) =>
+                        console.log("error in getSignature: ", err)
+                    );
             } else {
                 res.redirect("/petition");
             }
@@ -75,8 +96,7 @@ app.get("/petition/thanks", (req, res) => {
 app.get("/petition/signers", (req, res) => {
     db.getSigners()
         .then(({ rows }) => {
-            if (req.cookies.signed_in) {
-                console.log("results: ", rows);
+            if (req.session.signatureId) {
                 res.render("signers", {
                     rows,
                 });
@@ -88,6 +108,11 @@ app.get("/petition/signers", (req, res) => {
             console.log("error in getSigners: ", err);
             res.statusCode(500);
         });
+});
+
+app.get("/petition/logout", (req, res) => {
+    req.session = null;
+    res.redirect("/petition");
 });
 
 //-------------------------------------------------------------------------------------------------------------------------------------//

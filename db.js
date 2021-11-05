@@ -16,7 +16,8 @@ module.exports.getSigners = () => {
 
 module.exports.addSigner = (firstName, lastName, signature) => {
     const query = `INSERT INTO signatures (first_name, last_name, signature)
-                VALUES($1, $2, $3)`;
+                VALUES($1, $2, $3)
+                RETURNING id`;
     // we do this extra step to prevent sequel injection
     const params = [firstName, lastName, signature];
     // before passing the params to the query, dp.query() will first transform params into a string
@@ -25,5 +26,11 @@ module.exports.addSigner = (firstName, lastName, signature) => {
 
 module.exports.getNumOfSigners = () => {
     const query = "SELECT COUNT(*) FROM signatures";
+    return db.query(query);
+};
+
+module.exports.getSignature = (id) => {
+    const query = `SELECT * FROM signatures
+                    WHERE id = ${id};`;
     return db.query(query);
 };
