@@ -2,17 +2,20 @@
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
     let isPressed = false;
-    const offsetLeft = canvas.offsetLeft;
-    const offsetTop = canvas.offsetTop;
     const signatureVal = document.getElementById("signature");
+    const offsetLeft = canvas.getBoundingClientRect().left + window.pageXOffset;
+    const offsetTop = canvas.getBoundingClientRect().top + window.pageYOffset;
+
     ctx.lineCap = "round";
+    ctx.lineJoin = "round";
     ctx.strokeStyle = "black";
     ctx.lineWidth = "1";
 
     canvas.addEventListener("mousedown", (event) => {
+        console.log(event.pageY - offsetTop);
         isPressed = true;
         ctx.beginPath();
-        ctx.moveTo(event.clientX - offsetLeft, event.clientY - offsetTop);
+        ctx.moveTo(event.pageX - offsetLeft, event.pageY - offsetTop);
     });
 
     document.addEventListener("mouseup", () => {
@@ -26,7 +29,7 @@
     canvas.addEventListener("mousemove", (event) => {
         if (isPressed) {
             // start drawing
-            ctx.lineTo(event.clientX - offsetLeft, event.clientY - offsetTop);
+            ctx.lineTo(event.pageX - offsetLeft, event.pageY - offsetTop);
             ctx.stroke();
         }
     });

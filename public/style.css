@@ -7,7 +7,11 @@
 h1 {
     font-size: 9em;
     line-height: 1em;
-    margin-bottom: 60px;
+    margin-bottom: 40px;
+}
+
+h2 {
+    font-size: 3em;
 }
 
 h3 {
@@ -29,11 +33,11 @@ body {
 main {
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
 }
 
 form {
-    align-self: flex-end;
-    margin-right: 30px;
+    margin: 40px 30px 80px 0px;
 }
 
 canvas {
@@ -50,11 +54,12 @@ button {
     background-color: chartreuse;
 }
 
-footer {
-    margin-top: 60px;
-}
-
 hr {
     border: 1px solid black;
     margin-bottom: 10px;
+}
+
+.intro {
+    align-self: flex-end;
+    max-width: 60%;
 }
