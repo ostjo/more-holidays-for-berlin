@@ -25,9 +25,38 @@ module.exports.getUser = (email) => {
     return db.query(query);
 };
 
+module.exports.addProfile = (userId, age, city, homepage) => {
+    const query = `INSERT INTO profiles (user_id, age, city, homepage)
+                    VALUES($1, $2, LOWER($3), $4)
+                    RETURNING id`;
+
+    const params = [
+        userId,
+        formatEmptyInput(age),
+        formatEmptyInput(city),
+        formatHomepageUrl(homepage),
+    ];
+    console.log("params", params);
+    return db.query(query, params);
+};
+
 // module.exports.hasSigned = (id) => {
 //     const query = `SELECT `;
 // };
+
+const formatHomepageUrl = (homepage) => {
+    if (!homepage.startsWith("http")) {
+        return "http://" + homepage;
+    }
+    return homepage;
+};
+
+const formatEmptyInput = (input) => {
+    if (input === "") {
+        return null;
+    }
+    return input;
+};
 
 module.exports.getSigners = () => {
     const query = `SELECT users.first_name, users.last_name FROM users, signatures

@@ -62,6 +62,8 @@ app.get("/", (req, res) => {
     res.redirect("/petition");
 });
 
+// REGISTER ==========================================================================================================================
+
 app.get("/register", (req, res) => {
     // render petition site, without error partial
     res.render("registration", {
@@ -82,7 +84,7 @@ app.post("/register", (req, res) => {
                     // if everything goes ewll, store the user's id in a cookie
                     req.session.userId = rows[0].id;
                     // then redirect the user to the petition route so they can sign your petition!
-                    res.redirect("/petition");
+                    res.redirect("/register/profile");
                 })
                 .catch((err) => {
                     console.log("err in addUser: ", err);
@@ -97,6 +99,28 @@ app.post("/register", (req, res) => {
             res.sendStatus(500);
         });
 });
+
+// app.post("/register", (req, res) => {
+//     // grab input data from the req.body
+//     const { email, password } = req.body;
+//     console.log(email, password);
+//     res.sendStatus(200);
+// });
+
+// PROFILE ==========================================================================================================================
+
+app.get("/register/profile", (req, res) => {
+    return res.render("profile");
+});
+
+app.post("/register/profile", (req, res) => {
+    const { age, city, homepage } = req.body;
+    const { userId } = req.session;
+    db.addProfile(userId, age, city, homepage);
+    res.sendStatus(200);
+});
+
+// LOGIN ============================================================================================================================
 
 app.get("/login", (req, res) => {
     // render petition site, without error partial
@@ -133,12 +157,7 @@ app.post("/login", (req, res) => {
         .catch((err) => console.log("err in getUser: ", err));
 });
 
-app.post("/register", (req, res) => {
-    // grab input data from the req.body
-    const { email, password } = req.body;
-    console.log(email, password);
-    res.sendStatus(200);
-});
+// PETITION ==========================================================================================================================
 
 app.get("/petition", (req, res) => {
     // if user hasn't signed yet
@@ -147,10 +166,10 @@ app.get("/petition", (req, res) => {
         res.render("petition", {
             error: false,
         });
-    } else {
-        // has signed already, so take user to thanks page
-        res.redirect("/petition/thanks");
-    }
+    } // else {
+    //     // has signed already, so take user to thanks page
+    //     res.redirect("/regost");
+    // }
 });
 
 app.post("/petition", (req, res) => {
@@ -172,6 +191,8 @@ app.post("/petition", (req, res) => {
             });
         });
 });
+
+// THANKS ==========================================================================================================================
 
 app.get("/thanks", (req, res) => {
     // if user already signed in, get user's signature dataURL and the total count of signers from our db asynchronously
@@ -200,6 +221,8 @@ app.get("/thanks", (req, res) => {
         res.redirect("/petition");
     }
 });
+
+// SIGNERS ==========================================================================================================================
 
 app.get("/signers", (req, res) => {
     if (req.session.signatureId) {
