@@ -2,6 +2,7 @@ const spicedPg = require("spiced-pg");
 const dbUsername = "postgres";
 const dbUserPassword = "postgres";
 const database = "petition";
+const { formatEmptyInput, formatHomepageUrl } = require("./format-utils.js");
 
 const db = spicedPg(
     process.env.DATABASE_URL ||
@@ -21,9 +22,10 @@ module.exports.addUser = (firstName, lastName, email, hashedPW) => {
 };
 
 module.exports.getUser = (email) => {
+    console.log("email", email, [email]);
     const query = `SELECT * FROM users
-                    WHERE email = ${email}`;
-    return db.query(query);
+                    WHERE email = $1`;
+    return db.query(query, [email]);
 };
 
 module.exports.addProfile = (userId, age, city, homepage) => {
@@ -45,22 +47,6 @@ module.exports.addProfile = (userId, age, city, homepage) => {
 //     const query = `SELECT `;
 // };
 
-const formatHomepageUrl = (homepage) => {
-    if (homepage == "") {
-        return null;
-    } else if (!homepage.startsWith("http")) {
-        return "http://" + homepage;
-    }
-    return homepage;
-};
-
-const formatEmptyInput = (input) => {
-    if (input === "") {
-        return null;
-    }
-    return input;
-};
-
 module.exports.getSigners = () => {
     const query = `SELECT users.first_name AS first_name, users.last_name AS last_name, profiles.age AS age, profiles.city AS city, profiles.homepage AS homepage, signatures.signature AS signature 
                     FROM users
@@ -69,6 +55,17 @@ module.exports.getSigners = () => {
                     JOIN signatures
                     ON users.id = signatures.user_id`;
     return db.query(query);
+};
+
+module.exports.getSignersByCity = (city) => {
+    const query = `SELECT users.first_name AS first_name, users.last_name AS last_name, profiles.age AS age, profiles.city AS city, profiles.homepage AS homepage, signatures.signature AS signature 
+                    FROM users
+                    JOIN profiles
+                    ON users.id = profiles.user_id
+                    JOIN signatures
+                    ON users.id = signatures.user_id
+                    WHERE city = $1`;
+    return db.query(query, [city]);
 };
 
 module.exports.addSigner = (userId, signature) => {
@@ -88,6 +85,6 @@ module.exports.getNumOfSigners = () => {
 
 module.exports.getSignature = (id) => {
     const query = `SELECT * FROM signatures
-                    WHERE id = ${id};`;
-    return db.query(query);
+                    WHERE id = $1;`;
+    return db.query(query, [id]);
 };

@@ -6,7 +6,9 @@ const cookieSession = require("cookie-session");
 const csurf = require("csurf");
 const helmet = require("helmet");
 const { hash, compare } = require("./bc.js");
-const { COOKIE_SECRET } = process.env || require("./secrets.json");
+const sessionSecret =
+    process.env.SESSION_SECRET || require("./secrets.json").SESSION_SECRET;
+const { formatNameAndCity } = require("./format-utils.js");
 
 //------------------------------- Handlebars Setup -------------------------------//
 app.engine("handlebars", hb());
@@ -27,7 +29,7 @@ if (process.env.NODE_ENV == "production") {
 //-------------------------------- Cookies Setup ---------------------------------//
 app.use(
     cookieSession({
-        secret: COOKIE_SECRET, // used to generate the second cookie used to verify the integrity of the first cookie
+        secret: sessionSecret, // used to generate the second cookie used to verify the integrity of the first cookie
         maxAge: 1000 * 60 * 60 * 24 * 14, // this makes the cookie survive two weeks of inactivity
         sameSite: true, // only allow requests from the same site
     })
@@ -146,14 +148,22 @@ app.get("/login", (req, res) => {
 
 app.post("/login", (req, res) => {
     // grab input data from the req.body
-    const { email, password } = req.body;
+    const { email, inputPassword } = req.body;
+
+    console.log("inputPW:", inputPassword);
 
     // get the user's stored hashed password from the db using the user's email address
     db.getUser(email)
         .then((user) => {
-            const { hashedPw, id } = user.rows[0];
+            if (user.rows.length === 0) {
+                return res.render("login", {
+                    error: true,
+                });
+            }
 
-            compare(password, hashedPw)
+            const { password, id } = user.rows[0];
+
+            compare(inputPassword, password)
                 .then((match) => {
                     console.log("are the passwords a match??? ==>", match);
                     // if it's a match, set a cookie to the user's id (req.session.userId = userIdFromDb)
@@ -244,13 +254,7 @@ app.get("/signers", (req, res) => {
         // user already signed, so start getSigners() promise to receive all signers (surname, lastname)
         db.getSigners()
             .then(({ rows }) => {
-                rows.forEach((obj) => {
-                    obj["last_name"] = `${obj["last_name"].charAt(0)}.`; // only show first character of last_name
-                    // convert the first character of the city name to uppercase:
-                    obj["city"] =
-                        obj["city"].charAt(0).toUpperCase() +
-                        obj["city"].slice(1);
-                });
+                formatNameAndCity(rows);
 
                 // getSigners() resolved, so render the signers template with the rows
                 res.render("signers", {
@@ -266,6 +270,29 @@ app.get("/signers", (req, res) => {
         res.redirect("/petition");
     }
 });
+
+app.get("/signers/:city", (req, res) => {
+    const city = req.params.city.toLowerCase();
+    db.getSignersByCity(city)
+        .then(({ rows }) => {
+            if (rows.length === 0) {
+                // no db entries exist for this city!
+                res.sendStatus(404);
+            } else {
+                formatNameAndCity(rows);
+
+                res.render("signers-by-city", {
+                    rows,
+                });
+            }
+        })
+        .catch((err) => {
+            console.log("err in GET signers by city: ", err);
+            res.sendStatus(500);
+        });
+});
+
+//-------------------------------------------------------------------------------------------------------------------------------------//
 
 app.get("/logout", (req, res) => {
     req.session = null;
