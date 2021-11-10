@@ -6,21 +6,32 @@ const cookieSession = require("cookie-session");
 const csurf = require("csurf");
 const helmet = require("helmet");
 const { hash, compare } = require("./bc.js");
-
-//-------------------------------------------------------------- MIDDLEWARE -----------------------------------------------------------//
-
-//-------------------------------- Cookies Setup ---------------------------------//
-app.use(
-    cookieSession({
-        secret: `I know nothing.`, // used to generate the second cookie used to verify the integrity of the first cookie
-        maxAge: 1000 * 60 * 60 * 24 * 14, // this makes the cookie survive two weeks of inactivity
-        sameSite: true, // only allow requests from the same site
-    })
-);
+const { COOKIE_SECRET } = process.env || require("./secrets.json");
 
 //------------------------------- Handlebars Setup -------------------------------//
 app.engine("handlebars", hb());
 app.set("view engine", "handlebars");
+
+//-------------------------------------------------------------- MIDDLEWARE -----------------------------------------------------------//
+
+//------------------------------- heroku HTTPS Setup -------------------------------//
+if (process.env.NODE_ENV == "production") {
+    app.use((req, res, next) => {
+        if (req.headers["x-forwarded-proto"].startsWith("https")) {
+            return next();
+        }
+        res.redirect(`https://${req.hostname}${req.url}`);
+    });
+}
+
+//-------------------------------- Cookies Setup ---------------------------------//
+app.use(
+    cookieSession({
+        secret: COOKIE_SECRET, // used to generate the second cookie used to verify the integrity of the first cookie
+        maxAge: 1000 * 60 * 60 * 24 * 14, // this makes the cookie survive two weeks of inactivity
+        sameSite: true, // only allow requests from the same site
+    })
+);
 
 //------------------------------ Serve Public Folder -----------------------------//
 app.use(express.static(__dirname + "/public"));
