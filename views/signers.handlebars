@@ -1,4 +1,9 @@
 <h1>These are the best people in the world:</h1>
 {{#rows}}
-    <h3>{{first_name}} {{last_name}}</h3>
+    <h3>{{#if homepage}}<a href="{{homepage}}" target="_blank">{{first_name}}
+                {{last_name}}</a>
+        {{else}}{{first_name}}
+            {{last_name}}
+        {{/if}}{{#if age}},
+            {{age}}{{/if}}{{#if city}}, {{city}}{{/if}}</h3>
 {{/rows}}

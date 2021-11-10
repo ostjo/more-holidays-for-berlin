@@ -116,8 +116,12 @@ app.get("/register/profile", (req, res) => {
 app.post("/register/profile", (req, res) => {
     const { age, city, homepage } = req.body;
     const { userId } = req.session;
-    db.addProfile(userId, age, city, homepage);
-    res.sendStatus(200);
+    db.addProfile(userId, age, city, homepage)
+        .then(res.redirect("/petition"))
+        .catch((err) => {
+            console.log("error in POST add profile:", err);
+            res.sendStatus(500);
+        });
 });
 
 // LOGIN ============================================================================================================================
@@ -166,10 +170,10 @@ app.get("/petition", (req, res) => {
         res.render("petition", {
             error: false,
         });
-    } // else {
-    //     // has signed already, so take user to thanks page
-    //     res.redirect("/regost");
-    // }
+    } else {
+        // has signed already, so take user to thanks page
+        res.redirect("/thanks");
+    }
 });
 
 app.post("/petition", (req, res) => {
@@ -181,7 +185,7 @@ app.post("/petition", (req, res) => {
             // addSigner resolved
             // set a cookie with a reference to the signer (primary key) & redirect to thanks
             req.session.signatureId = rows[0].id;
-            res.redirect("/signers");
+            res.redirect("/thanks");
         })
         .catch((err) => {
             console.log("Error in addSigner: ", err);
@@ -229,6 +233,14 @@ app.get("/signers", (req, res) => {
         // user already signed, so start getSigners() promise to receive all signers (surname, lastname)
         db.getSigners()
             .then(({ rows }) => {
+                rows.forEach((obj) => {
+                    obj["last_name"] = `${obj["last_name"].charAt(0)}.`; // only show first character of last_name
+                    // convert the first character of the city name to uppercase:
+                    obj["city"] =
+                        obj["city"].charAt(0).toUpperCase() +
+                        obj["city"].slice(1);
+                });
+
                 // getSigners() resolved, so render the signers template with the rows
                 res.render("signers", {
                     rows,
@@ -251,4 +263,6 @@ app.get("/logout", (req, res) => {
 
 //-------------------------------------------------------------------------------------------------------------------------------------//
 
-app.listen(8080, () => console.log("✐ ✎ ✐ Petition server listening! ✐ ✎ ✐"));
+app.listen(process.env.PORT || 8080, () =>
+    console.log("✐ ✎ ✐ Petition server listening! ✐ ✎ ✐")
+);

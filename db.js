@@ -4,7 +4,8 @@ const dbUserPassword = "postgres";
 const database = "petition";
 
 const db = spicedPg(
-    `postgres:${dbUsername}:${dbUserPassword}@localhost:5432/${database}`
+    process.env.DATABASE_URL ||
+        `postgres:${dbUsername}:${dbUserPassword}@localhost:5432/${database}`
 );
 
 console.log("[db] Connecting to: ", database);
@@ -45,7 +46,9 @@ module.exports.addProfile = (userId, age, city, homepage) => {
 // };
 
 const formatHomepageUrl = (homepage) => {
-    if (!homepage.startsWith("http")) {
+    if (homepage == "") {
+        return null;
+    } else if (!homepage.startsWith("http")) {
         return "http://" + homepage;
     }
     return homepage;
@@ -59,8 +62,12 @@ const formatEmptyInput = (input) => {
 };
 
 module.exports.getSigners = () => {
-    const query = `SELECT users.first_name, users.last_name FROM users, signatures
-                    WHERE users.id = signatures.user_id`;
+    const query = `SELECT users.first_name AS first_name, users.last_name AS last_name, profiles.age AS age, profiles.city AS city, profiles.homepage AS homepage, signatures.signature AS signature 
+                    FROM users
+                    JOIN profiles
+                    ON users.id = profiles.user_id
+                    JOIN signatures
+                    ON users.id = signatures.user_id`;
     return db.query(query);
 };
 
