@@ -21,9 +21,14 @@ module.exports.addUser = (firstName, lastName, email, hashedPW) => {
     return db.query(query, params);
 };
 
-module.exports.getUser = (email) => {
-    const query = `SELECT * FROM users
-                    WHERE email = $1`;
+module.exports.getUserByEmail = (email) => {
+    const query = `SELECT users.id AS id, users.first_name AS first_name, users.last_name AS last_name, users.email AS email, 
+                    users.password AS password, signatures.signature AS signature
+                    FROM users
+                    JOIN signatures
+                    ON users.id = signatures.user_id
+                    WHERE email = $1;
+                    `;
     return db.query(query, [email]);
 };
 
@@ -93,7 +98,48 @@ module.exports.getNumOfSigners = () => {
 };
 
 module.exports.getSignature = (id) => {
-    const query = `SELECT * FROM signatures
-                    WHERE id = $1;`;
+    const query = `SELECT signature FROM signatures
+                    WHERE user_id = $1;`;
     return db.query(query, [id]);
 };
+
+module.exports.updateUserWithPw = (
+    userId,
+    first_name,
+    last_name,
+    email,
+    hashedPw
+) => {
+    const query = `UPDATE users
+                    SET first_name = $2, last_name = $3, email = $4, password = $5
+                    WHERE id = $1`;
+    const params = [userId, first_name, last_name, email, hashedPw];
+    return db.query(query, params);
+};
+
+module.exports.updateUser = (userId, first_name, last_name, email) => {
+    const query = `UPDATE users  
+                   SET first_name = $2, last_name = $3, email = $4
+                   WHERE id = $1`;
+    const params = [userId, first_name, last_name, email];
+    return db.query(query, params);
+};
+
+module.exports.upsertProfile = (userId, age, city, homepage) => {
+    const query = `INSERT INTO profiles (user_id, age, city, homepage) 
+                    VALUES ($1, $2, $3, $4)
+                    ON CONFLICT (user_id) DO UPDATE SET age=$2, city=$3, homepage=$4`;
+    const params = [
+        userId,
+        formatEmptyInput(age),
+        formatEmptyInput(city),
+        formatEmptyInput(homepage),
+    ];
+    return db.query(query, params);
+};
+
+// module.exports.checkHasSigned = (userId) => {
+//     const query = `SELECT signature FROM signatures
+//                     WHERE user_id = $1`;
+//     return db.query(query, [userId]);
+// };

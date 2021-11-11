@@ -1,5 +1,5 @@
-{{#user}}
 <form action="" method="post">
+    {{#user}}
     <div class="form-field">
         <label for="first_name">First Name</label>
         <input
@@ -29,7 +29,6 @@
             id="password"
             name="password"
             type="password"
-            required
         />
     </div>
     <div class="form-field">
@@ -44,7 +43,7 @@
         <label for="homepage">Homepage</label>
         <input id="homepage" name="homepage" type="url" {{#if homepage}}value="{{homepage}}"{{/if}}/>
     </div>
+    {{/user}}
     <input type="hidden" name="_csrf" value="{{csrfToken}}" />
     <button type="submit">update</button>
 </form>
-{{/user}}

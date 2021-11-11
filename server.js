@@ -8,7 +8,7 @@ const helmet = require("helmet");
 const { hash, compare } = require("./bc.js");
 const sessionSecret =
     process.env.SESSION_SECRET || require("./secrets.json").SESSION_SECRET;
-const { formatNameAndCity } = require("./format-utils.js");
+const { formatNameAndCity, capitalizeWord } = require("./format-utils.js");
 const {
     requireLoggedIn,
     requireNotLoggedIn,
@@ -134,16 +134,70 @@ app.post("/register/profile", requireLoggedIn, (req, res) => {
         });
 });
 
-app.get("/profile/edit", (req, res) => {
+app.get("/profile/edit", requireLoggedIn, (req, res) => {
     db.getUserById(req.session.userId)
         .then((user) => {
-            console.log("user:", user.rows[0]);
+            if (user.rows[0].city) {
+                // if a city is given, capitalize the first character again
+                user.rows[0].city = capitalizeWord(user.rows[0].city);
+            }
             return res.render("profile", {
                 user: user.rows[0],
             });
         })
         .catch((err) => {
-            console.log("err in GET profile getUser(): ", err);
+            console.log("err in GET profile getUserById(): ", err);
+            res.sendStatus(500);
+        });
+});
+
+app.post("/profile/edit", requireLoggedIn, (req, res) => {
+    const { first_name, last_name, email, password, age, city, homepage } =
+        req.body;
+    const { userId } = req.session;
+
+    console.log(
+        "given input:",
+        first_name,
+        last_name,
+        email,
+        password,
+        age,
+        city,
+        homepage
+    );
+
+    let userUpdatePromise;
+
+    if (password || password !== "") {
+        // 1. Hash the password
+        // 2. db.updateUserWithPassword(userId, firstName, lastName, email, passwordHash)
+        // Save the resulting promise to userUpdatePromise
+        userUpdatePromise = hash(password)
+            .then((hashedPw) =>
+                db.updateUserWithPw(
+                    userId,
+                    first_name,
+                    last_name,
+                    email,
+                    hashedPw
+                )
+            )
+            .catch((err) => console.log("err in hashing PW", err));
+    } else {
+        console.log("No password was given!");
+        // db.updateUser(userId, firstName, lastName, email)
+        // Save the resulting promise to userUpdatePromise
+        userUpdatePromise = db.updateUser(userId, first_name, last_name, email);
+    }
+
+    Promise.all([
+        userUpdatePromise,
+        db.upsertProfile(userId, age, city, homepage),
+    ])
+        .then(() => res.redirect("/thanks"))
+        .catch((err) => {
+            console.log("err in POST profile/edit: ", err);
             res.sendStatus(500);
         });
 });
@@ -162,7 +216,7 @@ app.post("/login", requireNotLoggedIn, (req, res) => {
     const { email, inputPassword } = req.body;
 
     // get the user's stored hashed password from the db using the user's email address
-    db.getUser(email)
+    db.getUserByEmail(email)
         .then((user) => {
             if (user.rows.length === 0) {
                 return res.render("login", {
@@ -170,25 +224,35 @@ app.post("/login", requireNotLoggedIn, (req, res) => {
                 });
             }
 
-            const { password, id } = user.rows[0];
+            const { password, id, signature } = user.rows[0];
 
             compare(inputPassword, password)
                 .then((match) => {
                     console.log("are the passwords a match??? ==>", match);
-                    // if it's a match, set a cookie to the user's id (req.session.userId = userIdFromDb)
-                    req.session.userId = id;
-                    // then redirect them to where it makes sense for your dataflow
-                    res.redirect("/thanks");
+                    if (match) {
+                        // if it's a match, set a cookie to the user's id (req.session.userId = userIdFromDb)
+                        req.session.userId = id;
+
+                        if (signature) {
+                            // user has already signed the petition
+                            req.session.signatureId = id;
+                        }
+
+                        // then redirect them to where it makes sense for your dataflow
+                        res.redirect("/thanks");
+                    } else {
+                        // if it's not a match, re-render the login page with an error message
+                        res.render("login", {
+                            error: true,
+                        });
+                    }
                 })
                 .catch((err) => {
                     console.log("err in compare: ", err);
-                    // if it's not a match, re-render the login page with an error message
-                    res.render("login", {
-                        error: true,
-                    });
+                    res.sendStatus(500);
                 });
         })
-        .catch((err) => console.log("err in getUser: ", err));
+        .catch((err) => console.log("err in getUserByEmail: ", err));
 });
 
 // PETITION ==========================================================================================================================
@@ -225,16 +289,14 @@ app.get("/thanks", requireSigned, (req, res) => {
     Promise.all([
         db.getNumOfSigners(),
         db.getSignature(req.session.signatureId),
+        db.getUserById(req.session.userId),
     ])
         .then((result) => {
-            const [count, signer] = result;
-            // both resolved, so start rendering thanks template with the total count and the signer's info
+            // all promises resolved, so start rendering thanks template with the total count and the signer's info
             res.render("thanks", {
-                count: count.rows[0].count,
-                signer: {
-                    name: signer.rows[0].first_name,
-                    signature: signer.rows[0].signature,
-                },
+                count: result[0].rows[0].count,
+                signature: result[1].rows[0].signature,
+                signer: result[2].rows[0].first_name,
             });
         })
         .catch((err) => {
