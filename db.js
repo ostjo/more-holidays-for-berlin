@@ -22,10 +22,19 @@ module.exports.addUser = (firstName, lastName, email, hashedPW) => {
 };
 
 module.exports.getUser = (email) => {
-    console.log("email", email, [email]);
     const query = `SELECT * FROM users
                     WHERE email = $1`;
     return db.query(query, [email]);
+};
+
+module.exports.getUserById = (id) => {
+    const query = `SELECT users.first_name AS first_name, users.last_name AS last_name, users.email AS email, 
+                            profiles.age AS age, profiles.city AS city, profiles.homepage AS homepage
+                    FROM users
+                    JOIN profiles
+                    ON users.id = profiles.user_id
+                    WHERE user_id = $1`;
+    return db.query(query, [id]);
 };
 
 module.exports.addProfile = (userId, age, city, homepage) => {

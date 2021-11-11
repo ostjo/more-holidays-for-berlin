@@ -1,27 +1,28 @@
 <h1>More holidays for Berlin! ☃︎</h1>
 <div class="intro">
-    <h2>Holidays are the greek wine of society, which is why we need your help to bring them in big time!</h2>
+    <h2>Holidays are the greek wine of society, which is why we need your help
+        to bring them in big time!</h2>
     <form method="POST">
         <h3>Support us with your signature, please</h3>
         <div class="form-field">
             <label for="first_name">First Name</label>
-            <input id="first_name" name="first_name"></input>
+            <input id="first_name" name="first_name" />
         </div>
         <div class="form-field">
             <label for="last_name">Last Name</label>
-            <input id="last_name" name="last_name" ></input>
+            <input id="last_name" name="last_name" />
         </div>
         <div class="form-field">
             <label for="email">E-Mail Address</label>
-            <input id="email" name="email" type="email"></input>
+            <input id="email" name="email" type="email" />
         </div>
         <div class="form-field">
             <label for="password">Password</label>
-            <input id="password" name="password" type="password"></input>
+            <input id="password" name="password" type="password" />
         </div>
-        <input type="hidden" name="_csrf" value="{{csrfToken}}">
+        <input type="hidden" name="_csrf" value="{{csrfToken}}" />
         {{#if error}}
-        <p class="error">This e-mail is already taken.</p>
+            <p class="error">This e-mail is already taken.</p>
         {{/if}}
         <button type="submit">register</button>
     </form>

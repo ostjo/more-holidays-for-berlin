@@ -90,7 +90,7 @@ app.get("/register", requireNotLoggedIn, (req, res) => {
     });
 });
 
-app.post("/register", (req, res) => {
+app.post("/register", requireNotLoggedIn, (req, res) => {
     // grab input data from the req.body
     const { first_name, last_name, email, password } = req.body;
     hash(password)
@@ -119,11 +119,11 @@ app.post("/register", (req, res) => {
 
 // PROFILE ==========================================================================================================================
 
-app.get("/register/profile", (req, res) => {
-    return res.render("profile");
+app.get("/register/profile", requireLoggedIn, (req, res) => {
+    return res.render("registration-profile");
 });
 
-app.post("/register/profile", (req, res) => {
+app.post("/register/profile", requireLoggedIn, (req, res) => {
     const { age, city, homepage } = req.body;
     const { userId } = req.session;
     db.addProfile(userId, age, city, homepage)
@@ -134,16 +134,30 @@ app.post("/register/profile", (req, res) => {
         });
 });
 
+app.get("/profile/edit", (req, res) => {
+    db.getUserById(req.session.userId)
+        .then((user) => {
+            console.log("user:", user.rows[0]);
+            return res.render("profile", {
+                user: user.rows[0],
+            });
+        })
+        .catch((err) => {
+            console.log("err in GET profile getUser(): ", err);
+            res.sendStatus(500);
+        });
+});
+
 // LOGIN ============================================================================================================================
 
-app.get("/login", (req, res) => {
+app.get("/login", requireNotLoggedIn, (req, res) => {
     // render petition site, without error partial
     res.render("login", {
         error: false,
     });
 });
 
-app.post("/login", (req, res) => {
+app.post("/login", requireNotLoggedIn, (req, res) => {
     // grab input data from the req.body
     const { email, inputPassword } = req.body;
 
@@ -185,7 +199,7 @@ app.get("/petition", requireLoggedIn, requireNotSigned, (req, res) => {
     });
 });
 
-app.post("/petition", (req, res) => {
+app.post("/petition", requireLoggedIn, requireNotSigned, (req, res) => {
     // grab input data from the req.body
     const { signature } = req.body;
     // when posting to petition page, start addSigner() promise to add input to the database
@@ -276,7 +290,10 @@ app.get("/logout", (req, res) => {
 });
 
 //-------------------------------------------------------------------------------------------------------------------------------------//
-
-app.listen(process.env.PORT || 8080, () =>
-    console.log("✐ ✎ ✐ Petition server listening! ✐ ✎ ✐")
-);
+// only call app.listen if we are running server.js as a main (so for example starting `node server.js` in the terminal)
+// if server.js is called by SuperTest, this will not start! (SuperTest will call its own listen method)
+if (require.main == module) {
+    app.listen(process.env.PORT || 8080, () =>
+        console.log("✐ ✎ ✐ Petition server listening! ✐ ✎ ✐")
+    );
+}
