@@ -9,6 +9,12 @@ const { hash, compare } = require("./bc.js");
 const sessionSecret =
     process.env.SESSION_SECRET || require("./secrets.json").SESSION_SECRET;
 const { formatNameAndCity } = require("./format-utils.js");
+const {
+    requireLoggedIn,
+    requireNotLoggedIn,
+    requireNotSigned,
+    requireSigned,
+} = require("./middleware/authorization.js");
 
 //------------------------------------------------------- Handlebars Setup ---------------------------------------------------------//
 app.engine("handlebars", hb());
@@ -69,7 +75,7 @@ app.use((req, res, next) => {
     next();
 });
 
-//-------------------------------------------------------------------------------------------------------------------------------------//
+// / ROUTE ==========================================================================================================================
 
 app.get("/", (req, res) => {
     res.redirect("/petition");
@@ -77,7 +83,7 @@ app.get("/", (req, res) => {
 
 // REGISTER ==========================================================================================================================
 
-app.get("/register", (req, res) => {
+app.get("/register", requireNotLoggedIn, (req, res) => {
     // render petition site, without error partial
     res.render("registration", {
         error: false,
@@ -89,8 +95,6 @@ app.post("/register", (req, res) => {
     const { first_name, last_name, email, password } = req.body;
     hash(password)
         .then((hashedPw) => {
-            console.log("hash ====> ", hashedPw);
-
             // insert the user's first name, last name, email and HASHED PW into the database
             db.addUser(first_name, last_name, email, hashedPw)
                 .then(({ rows }) => {
@@ -112,13 +116,6 @@ app.post("/register", (req, res) => {
             res.sendStatus(500);
         });
 });
-
-// app.post("/register", (req, res) => {
-//     // grab input data from the req.body
-//     const { email, password } = req.body;
-//     console.log(email, password);
-//     res.sendStatus(200);
-// });
 
 // PROFILE ==========================================================================================================================
 
@@ -149,8 +146,6 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
     // grab input data from the req.body
     const { email, inputPassword } = req.body;
-
-    console.log("inputPW:", inputPassword);
 
     // get the user's stored hashed password from the db using the user's email address
     db.getUser(email)
@@ -184,17 +179,10 @@ app.post("/login", (req, res) => {
 
 // PETITION ==========================================================================================================================
 
-app.get("/petition", (req, res) => {
-    // if user hasn't signed yet
-    if (!req.session.signatureId) {
-        // render petition site, without error partial
-        res.render("petition", {
-            error: false,
-        });
-    } else {
-        // has signed already, so take user to thanks page
-        res.redirect("/thanks");
-    }
+app.get("/petition", requireLoggedIn, requireNotSigned, (req, res) => {
+    res.render("petition", {
+        error: false,
+    });
 });
 
 app.post("/petition", (req, res) => {
@@ -219,59 +207,47 @@ app.post("/petition", (req, res) => {
 
 // THANKS ==========================================================================================================================
 
-app.get("/thanks", (req, res) => {
-    // if user already signed in, get user's signature dataURL and the total count of signers from our db asynchronously
-    if (req.session.signatureId) {
-        Promise.all([
-            db.getNumOfSigners(),
-            db.getSignature(req.session.signatureId),
-        ])
-            .then((result) => {
-                const [count, signer] = result;
-                // both resolved, so start rendering thanks template with the total count and the signer's info
-                res.render("thanks", {
-                    count: count.rows[0].count,
-                    signer: {
-                        name: signer.rows[0].first_name,
-                        signature: signer.rows[0].signature,
-                    },
-                });
-            })
-            .catch((err) => {
-                console.log("error in getSignature or getNumOfSigner: ", err);
-                res.sendStatus(500);
+app.get("/thanks", requireSigned, (req, res) => {
+    Promise.all([
+        db.getNumOfSigners(),
+        db.getSignature(req.session.signatureId),
+    ])
+        .then((result) => {
+            const [count, signer] = result;
+            // both resolved, so start rendering thanks template with the total count and the signer's info
+            res.render("thanks", {
+                count: count.rows[0].count,
+                signer: {
+                    name: signer.rows[0].first_name,
+                    signature: signer.rows[0].signature,
+                },
             });
-    } else {
-        // user has not yet signed in --> redirect to /petition
-        res.redirect("/petition");
-    }
+        })
+        .catch((err) => {
+            console.log("error in getSignature or getNumOfSigner: ", err);
+            res.sendStatus(500);
+        });
 });
 
 // SIGNERS ==========================================================================================================================
 
-app.get("/signers", (req, res) => {
-    if (req.session.signatureId) {
-        // user already signed, so start getSigners() promise to receive all signers (surname, lastname)
-        db.getSigners()
-            .then(({ rows }) => {
-                formatNameAndCity(rows);
+app.get("/signers", requireSigned, (req, res) => {
+    db.getSigners()
+        .then(({ rows }) => {
+            formatNameAndCity(rows);
 
-                // getSigners() resolved, so render the signers template with the rows
-                res.render("signers", {
-                    rows,
-                });
-            })
-            .catch((err) => {
-                console.log("error in getSigners: ", err);
-                res.sendStatus(500);
+            // getSigners() resolved, so render the signers template with the rows
+            res.render("signers", {
+                rows,
             });
-    } else {
-        // user has not signed yet, so redirect to /petition
-        res.redirect("/petition");
-    }
+        })
+        .catch((err) => {
+            console.log("error in getSigners: ", err);
+            res.sendStatus(500);
+        });
 });
 
-app.get("/signers/:city", (req, res) => {
+app.get("/signers/:city", requireSigned, (req, res) => {
     const city = req.params.city.toLowerCase();
     db.getSignersByCity(city)
         .then(({ rows }) => {
