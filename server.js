@@ -10,13 +10,13 @@ const sessionSecret =
     process.env.SESSION_SECRET || require("./secrets.json").SESSION_SECRET;
 const { formatNameAndCity } = require("./format-utils.js");
 
-//------------------------------- Handlebars Setup -------------------------------//
+//------------------------------------------------------- Handlebars Setup ---------------------------------------------------------//
 app.engine("handlebars", hb());
 app.set("view engine", "handlebars");
 
-//-------------------------------------------------------------- MIDDLEWARE -----------------------------------------------------------//
+//=========================================================== MIDDLEWARE ===========================================================//
 
-//------------------------------- heroku HTTPS Setup -------------------------------//
+//------------------------------------------------------- heroku HTTPS Setup -------------------------------------------------------//
 if (process.env.NODE_ENV == "production") {
     app.use((req, res, next) => {
         if (req.headers["x-forwarded-proto"].startsWith("https")) {
@@ -26,7 +26,7 @@ if (process.env.NODE_ENV == "production") {
     });
 }
 
-//-------------------------------- Cookies Setup ---------------------------------//
+//---------------------------------------------------------- Cookies Setup ---------------------------------------------------------//
 app.use(
     cookieSession({
         secret: sessionSecret, // used to generate the second cookie used to verify the integrity of the first cookie
@@ -35,17 +35,17 @@ app.use(
     })
 );
 
-//------------------------------ Serve Public Folder -----------------------------//
+//------------------------------------------------------- Serve Public Folder ------------------------------------------------------//
 app.use(express.static(__dirname + "/public"));
 
-//-------------------------------- req.body access ------------------------------//
+//-------------------------------------------------------- req.body access ---------------------------------------------------------//
 app.use(
     express.urlencoded({
         extended: false,
     })
 );
 
-//--------------------------------- Protection -----------------------------------//
+//---------------------------------------------------------- Protection ------------------------------------------------------------//
 // x-frame-options against clickjacking
 app.use((req, res, next) => {
     res.setHeader("x-frame-options", "deny");
@@ -63,11 +63,11 @@ app.use(function (req, res, next) {
 // secure app by setting various HTTP headers (automated by helmet)
 app.use(helmet());
 
-//---------------------------------- Logging -----------------------------------//
-// app.use((req, res, next) => {
-//     console.log(`${req.method} | ${req.url}`);
-//     next();
-// });
+//----------------------------------------------------------- Logging ---------------------------------------------------------------//
+app.use((req, res, next) => {
+    console.log(`${req.method} | ${req.url}`);
+    next();
+});
 
 //-------------------------------------------------------------------------------------------------------------------------------------//
 

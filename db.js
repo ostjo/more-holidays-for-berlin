@@ -73,7 +73,7 @@ module.exports.addSigner = (userId, signature) => {
                 VALUES($1, $2)
                 RETURNING id`;
     // we do this extra step to prevent sequel injection
-    const params = [userId, signature];
+    const params = [userId, formatEmptyInput(signature)];
     // before passing the params to the query, dp.query() will first transform params into a string
     return db.query(query, params);
 };

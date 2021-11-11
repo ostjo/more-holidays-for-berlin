@@ -23,7 +23,9 @@ module.exports.formatNameAndCity = (rows) => {
     rows.forEach((obj) => {
         // only show first character of last_name
         obj.last_name = module.exports.abbreviateName(obj.last_name);
-        // convert the first character of the city name to uppercase:
-        obj.city = module.exports.capitalizeWord(obj.city);
+        // convert the first character of the city name to uppercase, if city is given:
+        if (obj.city) {
+            obj.city = module.exports.capitalizeWord(obj.city);
+        }
     });
 };
