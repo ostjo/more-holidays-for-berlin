@@ -102,6 +102,14 @@ test("redirect user to /thanks on successfull POST /petition", () => {
     cookieSession.mockSessionOnce({
         userId: 1,
     });
+
+    // mock resolved value of addSigner once with resolve and returning rows
+    db.addSigner.mockResolvedValueOnce(
+        Promise.resolve({
+            rows: [{ id: 1 }],
+        })
+    );
+
     return supertest(app)
         .post("/petition")
         .send("signature=chicken")
@@ -116,6 +124,10 @@ test("body contains error message on failing POST /petition", () => {
     cookieSession.mockSessionOnce({
         userId: 1,
     });
+
+    // mock rejected value of addSigner once
+    db.addSigner.mockRejectedValueOnce();
+
     return supertest(app)
         .post("/petition")
         .send("signature=")
@@ -126,19 +138,3 @@ test("body contains error message on failing POST /petition", () => {
             );
         });
 });
-
-// mock resolved value of addSigner once with resolve and returning rows
-db.addSigner.mockResolvedValueOnce(
-    new Promise((resolve) => {
-        resolve({
-            rows: [{ id: 1 }],
-        });
-    })
-);
-
-// mock resolved value of addSigner once with reject
-db.addSigner.mockResolvedValueOnce(
-    new Promise((reject) => {
-        reject();
-    })
-);
