@@ -103,6 +103,12 @@ module.exports.getSignature = (id) => {
     return db.query(query, [id]);
 };
 
+module.exports.deleteSignature = (id) => {
+    const query = `DELETE FROM signatures
+                    WHERE user_id = $1`;
+    return db.query(query, [id]);
+};
+
 module.exports.updateUserWithPw = (
     userId,
     first_name,

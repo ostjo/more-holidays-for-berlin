@@ -16,7 +16,10 @@ router.get("/thanks", requireSigned, (req, res) => {
             res.render("thanks", {
                 count: result[0].rows[0].count,
                 signature: result[1].rows[0].signature,
-                signer: result[2].rows[0].first_name,
+                signer: {
+                    first_name: result[2].rows[0].first_name,
+                    last_name: result[2].rows[0].last_name,
+                },
             });
         })
         .catch((err) => {
@@ -58,6 +61,19 @@ router.get("/signers/:city", requireSigned, (req, res) => {
         })
         .catch((err) => {
             console.log("err in GET signers by city: ", err);
+            res.sendStatus(500);
+        });
+});
+
+router.post("/signature/delete", requireSigned, (req, res) => {
+    db.deleteSignature(req.session.userId)
+        .then(() => {
+            // remove signatureId from cookie session because user unsigned
+            delete req.session.signatureId;
+            res.redirect("/petition");
+        })
+        .catch((err) => {
+            console.log("err in POST signature/delete: ", err);
             res.sendStatus(500);
         });
 });

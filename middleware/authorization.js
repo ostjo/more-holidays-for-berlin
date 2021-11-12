@@ -18,8 +18,8 @@ const requireNotLoggedIn = (req, res, next) => {
 
 const requireNotSigned = (req, res, next) => {
     if (req.session.signatureId) {
-        // user has signed already --> redirect to /signers
-        return res.redirect("/signers");
+        // user has signed already --> redirect to /thanks
+        return res.redirect("/thanks");
     }
     next();
 };

@@ -1,5 +1,10 @@
-<h1>Thanks for signing, {{signer}}!</h1>
+<h1>Thanks for signing, {{signer.first_name}}!</h1>
 <img src="{{signature}}" alt="" width="600px" height="150px" />
-<h2>You are amazing, as are these peeps:
-    <a href="/signers">List of signers</a></h2>
-<p>{{count}} people have already signed! Way to go!</p>
+<form method="post" action="/signature/delete">
+    <button>Delete my signature</button>
+    <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+</form>
+<h3>Along with you,
+    <a href="/signers">{{count}} people</a>
+    have already signed. Way to go!</h3>
+{{>account}}
