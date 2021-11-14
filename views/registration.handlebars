@@ -26,15 +26,31 @@
         <h4>Please register first to support our noble cause.</h4>
         <div class="form-field">
             {{! <label for="first_name">First Name</label> }}
-            <input id="first_name" name="first_name" placeholder="first name" />
+            <input
+                id="first_name"
+                name="first_name"
+                placeholder="first name"
+                required
+            />
         </div>
         <div class="form-field">
             {{! <label for="last_name">Last Name</label> }}
-            <input id="last_name" name="last_name" placeholder="last name" />
+            <input
+                id="last_name"
+                name="last_name"
+                placeholder="last name"
+                required
+            />
         </div>
         <div class="form-field">
             {{! <label for="email">E-Mail Address</label> }}
-            <input id="email" name="email" type="email" placeholder="e-mail" />
+            <input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="e-mail"
+                required
+            />
         </div>
         <div class="form-field">
             {{! <label for="password">Password</label> }}
@@ -47,7 +63,7 @@
         </div>
         <input type="hidden" name="_csrf" value="{{csrfToken}}" />
         {{#if error}}
-            <p class="error">This e-mail is already taken.</p>
+            <p class="error">{{error}}</p>
         {{/if}}
         <button class="button-m" type="submit">register</button>
     </form>

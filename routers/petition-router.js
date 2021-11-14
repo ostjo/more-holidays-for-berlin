@@ -8,9 +8,7 @@ const db = require("../db.js");
 const router = express.Router();
 
 router.get("/", requireLoggedIn, requireNotSigned, (req, res) => {
-    return res.render("petition", {
-        error: false,
-    });
+    return res.render("petition");
 });
 
 router.post("/", requireLoggedIn, requireNotSigned, (req, res) => {
@@ -29,7 +27,7 @@ router.post("/", requireLoggedIn, requireNotSigned, (req, res) => {
             console.log("Error in addSigner: ", err);
             // rerender /petition & show error message to the template
             res.render("petition", {
-                error: true,
+                error: "Please sign above before submitting.",
             });
         });
 });

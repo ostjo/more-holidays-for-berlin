@@ -82,7 +82,24 @@ router.post("/edit", requireLoggedIn, (req, res) => {
         userUpdatePromise,
         db.upsertProfile(userId, age, city, homepage),
     ])
-        .then(() => res.redirect("/thanks"))
+        .then(() => {
+            return db
+                .getUserById(req.session.userId)
+                .then((user) => {
+                    if (user.rows[0].city) {
+                        // if a city is given, capitalize the first character again
+                        user.rows[0].city = capitalizeWord(user.rows[0].city);
+                    }
+                    return res.render("profile", {
+                        user: user.rows[0],
+                        update: "✅ Profile was successfully updated.",
+                    });
+                })
+                .catch((err) => {
+                    console.log("err in GET profile getUserById(): ", err);
+                    res.sendStatus(500);
+                });
+        })
         .catch((err) => {
             console.log("err in POST profile/edit: ", err);
             res.sendStatus(500);

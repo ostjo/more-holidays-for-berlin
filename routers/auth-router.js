@@ -7,9 +7,7 @@ const router = express.Router();
 
 router.get("/register", requireNotLoggedIn, (req, res) => {
     // render petition site, without error partial
-    res.render("registration", {
-        error: false,
-    });
+    res.render("registration");
 });
 
 router.post("/register", requireNotLoggedIn, (req, res) => {
@@ -29,7 +27,7 @@ router.post("/register", requireNotLoggedIn, (req, res) => {
                     console.log("err in addUser: ", err);
                     // re-render template with an error message
                     res.render("registration", {
-                        error: true,
+                        error: "Ooops. This e-mail is already taken.",
                     });
                 });
         })
@@ -40,9 +38,7 @@ router.post("/register", requireNotLoggedIn, (req, res) => {
 });
 
 router.get("/login", requireNotLoggedIn, (req, res) => {
-    res.render("login", {
-        error: false,
-    });
+    res.render("login");
 });
 
 router.post("/login", requireNotLoggedIn, (req, res) => {
@@ -54,7 +50,7 @@ router.post("/login", requireNotLoggedIn, (req, res) => {
         .then((user) => {
             if (user.rows.length === 0) {
                 return res.render("login", {
-                    error: true,
+                    error: "Sorry, the email address and/or password are incorrect.",
                 });
             }
 
@@ -77,7 +73,7 @@ router.post("/login", requireNotLoggedIn, (req, res) => {
                     } else {
                         // if it's not a match, re-render the login page with an error message
                         res.render("login", {
-                            error: true,
+                            error: "Sorry, the email address and/or password are incorrect.",
                         });
                     }
                 })

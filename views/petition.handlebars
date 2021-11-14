@@ -5,10 +5,10 @@
     <form method="POST">
         <input id="signature" name="signature" type="hidden">
         <canvas id="canvas" class="signature" width="800px" height="250px"></canvas>
+        {{#if error}}
+            <p>{{error}}</p>
+        {{/if}}
         <input type="hidden" name="_csrf" value="{{csrfToken}}">
         <button class="button-m" type="submit">submit</button>
-        {{#if error}}
-        {{>submitError}}
-        {{/if}}
     </form>
 </section>
