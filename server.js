@@ -4,6 +4,13 @@ const hb = require("express-handlebars");
 const cookieSession = require("cookie-session");
 const csurf = require("csurf");
 const helmet = require("helmet");
+
+if (process.env.SESSION_SECRET) {
+    console.log("YES");
+} else {
+    console.log("NO!");
+}
+
 const sessionSecret =
     process.env.SESSION_SECRET || require("./secrets.json").SESSION_SECRET;
 const { authRouter } = require("./routers/auth-router.js");
