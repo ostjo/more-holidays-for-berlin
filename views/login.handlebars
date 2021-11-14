@@ -1,16 +1,25 @@
-<h2>Please log in.</h2>
-<form method="POST">
-    <div class="form-field">
-        <label for="email">E-Mail
-        <input id="email" name="email">
-    </div>
-    <div class="form-field">
-        <label for="inputPassword">Password</label>
-        <input id="inputPassword" name="inputPassword" type="password">
-    </div>
-    <input type="hidden" name="_csrf" value="{{csrfToken}}">
-    <button type="submit">login</button>
-    {{#if error}}
-    <h3>Wrong e-mail or password.</h3>
-    {{/if}}
-</form>
+<div class="title login">
+    <h2>Please login</h2>
+</div>
+<section class="content login">
+    <form method="POST">
+        <div class="form-field">
+            {{! <label for="email">E-Mail</label> }}
+            <input id="email" name="email" placeholder="e-mail" />
+        </div>
+        <div class="form-field">
+            {{! <label for="inputPassword">Password</label> }}
+            <input
+                id="inputPassword"
+                name="inputPassword"
+                type="password"
+                placeholder="password"
+            />
+        </div>
+        <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+        <button type="submit" class="button-m">login</button>
+        {{#if error}}
+            <h3>Wrong e-mail or password.</h3>
+        {{/if}}
+    </form>
+</section>

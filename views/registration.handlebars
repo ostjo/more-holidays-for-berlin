@@ -1,29 +1,54 @@
-<h1>More holidays for Berlin! ☃︎</h1>
-<div class="intro">
-    <h2>Holidays are the greek wine of society, which is why we need your help
-        to bring them in big time!</h2>
+<div class="title registration">
+    <h2>Ready to join our cause?</h2>
+    <svg
+        class="svg-animated"
+        width="476"
+        height="476"
+        viewBox="0 0 476 476"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+        <g style="mix-blend-mode:lighten">
+            <path
+                d="M238 1L252.161 148.589L311.237 12.5996L279.098 157.341L377.305 46.263L302.012 173.988L429.737 98.6949L318.659 196.902L463.4 164.763L327.411 223.839L475 238L327.411 252.161L463.4 311.237L318.659 279.098L429.737 377.305L302.012 302.012L377.305 429.737L279.098 318.659L311.237 463.4L252.161 327.411L238 475L223.839 327.411L164.763 463.4L196.902 318.659L98.6949 429.737L173.988 302.012L46.263 377.305L157.341 279.098L12.5996 311.237L148.589 252.161L1 238L148.589 223.839L12.5996 164.763L157.341 196.902L46.263 98.6949L173.988 173.988L98.6949 46.263L196.902 157.341L164.763 12.5996L223.839 148.589L238 1Z"
+                fill="#FF6FDF"
+            ></path>
+            <path
+                d="M238 1L252.161 148.589L311.237 12.5996L279.098 157.341L377.305 46.263L302.012 173.988L429.737 98.6949L318.659 196.902L463.4 164.763L327.411 223.839L475 238L327.411 252.161L463.4 311.237L318.659 279.098L429.737 377.305L302.012 302.012L377.305 429.737L279.098 318.659L311.237 463.4L252.161 327.411L238 475L223.839 327.411L164.763 463.4L196.902 318.659L98.6949 429.737L173.988 302.012L46.263 377.305L157.341 279.098L12.5996 311.237L148.589 252.161L1 238L148.589 223.839L12.5996 164.763L157.341 196.902L46.263 98.6949L173.988 173.988L98.6949 46.263L196.902 157.341L164.763 12.5996L223.839 148.589L238 1Z"
+                stroke="#FF6FDF"
+                stroke-width="20.397"
+            ></path>
+        </g>
+    </svg>
+</div>
+<section class="content">
     <form method="POST">
-        <h3>Support us with your signature, please</h3>
+        <h4>Please register first to support our noble cause.</h4>
         <div class="form-field">
-            <label for="first_name">First Name</label>
-            <input id="first_name" name="first_name" />
+            {{! <label for="first_name">First Name</label> }}
+            <input id="first_name" name="first_name" placeholder="first name" />
         </div>
         <div class="form-field">
-            <label for="last_name">Last Name</label>
-            <input id="last_name" name="last_name" />
+            {{! <label for="last_name">Last Name</label> }}
+            <input id="last_name" name="last_name" placeholder="last name" />
         </div>
         <div class="form-field">
-            <label for="email">E-Mail Address</label>
-            <input id="email" name="email" type="email" />
+            {{! <label for="email">E-Mail Address</label> }}
+            <input id="email" name="email" type="email" placeholder="e-mail" />
         </div>
         <div class="form-field">
-            <label for="password">Password</label>
-            <input id="password" name="password" type="password" />
+            {{! <label for="password">Password</label> }}
+            <input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="password"
+            />
         </div>
         <input type="hidden" name="_csrf" value="{{csrfToken}}" />
         {{#if error}}
             <p class="error">This e-mail is already taken.</p>
         {{/if}}
-        <button type="submit">register</button>
+        <button class="button-m" type="submit">register</button>
     </form>
-</div>
+</section>

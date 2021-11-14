@@ -132,7 +132,7 @@ test("body contains error message on failing POST /petition", () => {
         .post("/petition")
         .send("signature=")
         .then((res) => {
-            // expect(res.statusCode).toBe(200);
+            expect(res.statusCode).toBe(200);
             expect(res.text).toContain(
                 "We really need you to fill out all fields before submitting."
             );

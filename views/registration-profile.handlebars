@@ -1,17 +1,25 @@
-<h2>Please tell us a little bit about yourself.</h2>
-<form method="POST">
-    <div class="form-field">
-        <label for="age">Age</label>
-        <input id="age" name="age" type="number" />
-    </div>
-    <div class="form-field">
-        <label for="city">City</label>
-        <input id="city" name="city" />
-    </div>
-    <div class="form-field">
-        <label for="homepage">Homepage</label>
-        <input id="homepage" name="homepage" type="url" />
-    </div>
-    <input type="hidden" name="_csrf" value="{{csrfToken}}" />
-    <button type="submit">continue</button>
-</form>
+<div class="content title reg-profile">
+    <h3>Please tell us a little bit about yourself.</h3>
+    <h4>Of course, all of this is optional.</h4>
+    <form method="POST">
+        <div class="form-field">
+            {{! <label for="age">Age</label> }}
+            <input id="age" name="age" type="number" placeholder="age" />
+        </div>
+        <div class="form-field">
+            {{! <label for="city">City</label> }}
+            <input id="city" name="city" placeholder="city" />
+        </div>
+        <div class="form-field">
+            {{! <label for="homepage">Homepage</label> }}
+            <input
+                id="homepage"
+                name="homepage"
+                type="url"
+                placeholder="homepage"
+            />
+        </div>
+        <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+        <button class="button-m" type="submit">continue</button>
+    </form>
+</div>

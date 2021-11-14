@@ -1,10 +1,23 @@
-<h1>Thanks for signing, {{signer.first_name}}!</h1>
-<img src="{{signature}}" alt="" width="600px" height="150px" />
-<form method="post" action="/signature/delete">
-    <button>Delete my signature</button>
-    <input type="hidden" name="_csrf" value="{{csrfToken}}" />
-</form>
-<h3>Along with you,
-    <a href="/signers">{{count}} people</a>
-    have already signed. Way to go!</h3>
-{{>account}}
+<script src="logo-script.js" defer></script>
+{{>navbar}}
+<section class="title nav-offset">
+    <div class="thanks">
+        <h3>Thanks for signing,<br />{{signer.first_name}}!</h3>
+        <h4>You are <strong>number #{{count}}</strong> to sign the petition.<br><a href="/signers">see all signers</a></h4>
+    </div>
+</section>
+<section class="content">
+    {{!-- <h1>Thanks for signing, {{signer.first_name}}!</h1> --}}
+    <img
+        class="signature"
+        src="{{signature}}"
+        alt=""
+        width="800px"
+        height="250px"
+    />
+    <form method="post" action="/signature/delete">
+        <button class="button-m">Delete my signature</button>
+        <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+    </form>
+    {{!-- {{>account}} --}}
+</section>

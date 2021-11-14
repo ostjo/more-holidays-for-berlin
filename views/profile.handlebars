@@ -1,49 +1,63 @@
-<form action="" method="post">
+<script src="../logo-script.js" defer></script>
+{{>navbar}}
+<section class="content nav-offset title">
+    <h3>{{user.first_name}} {{user.last_name}}</h3>
+    <form action="" method="post">
     {{#user}}
-    <div class="form-field">
-        <label for="first_name">First Name</label>
+    <div class="user">
+        <div class="form-field">
+        {{!-- <label for="first_name">First Name</label> --}}
         <input
             id="first_name"
             name="first_name"
             value="{{first_name}}"
+            placeholder="first name"
             required
         />
     </div>
     <div class="form-field">
-        <label for="last_name">Last Name</label>
-        <input id="last_name" name="last_name" value="{{last_name}}" required />
+        {{!-- <label for="last_name">Last Name</label> --}}
+        <input id="last_name" name="last_name" value="{{last_name}}" placeholder="last name" required />
     </div>
     <div class="form-field">
-        <label for="email">E-Mail Address</label>
+        {{!-- <label for="email">E-Mail Address</label> --}}
         <input
             id="email"
             name="email"
             type="email"
             value="{{email}}"
+            placeholder="e-mail"
             required
         />
     </div>
-    <div class="form-field">
-        <label for="password">Password</label>
+    </div>
+    <div class="profile">
+        <div class="form-field">
+        {{!-- <label for="password">Password</label> --}}
         <input
             id="password"
             name="password"
             type="password"
+            placeholder="password"
         />
     </div>
     <div class="form-field">
-        <label for="age">Age</label>
-        <input id="age" name="age" type="number" {{#if age}}value="{{age}}"{{/if}}/>
+        {{!-- <label for="age">Age</label> --}}
+        <input id="age" name="age" type="number" placeholder="age" {{#if age}}value="{{age}}"{{/if}}/>
     </div>
     <div class="form-field">
-        <label for="city">City</label>
-        <input id="city" name="city" {{#if city}}value="{{city}}"{{/if}}/>
+        {{!-- <label for="city">City</label> --}}
+        <input id="city" name="city" placeholder="city" {{#if city}}value="{{city}}"{{/if}}/>
     </div>
     <div class="form-field">
-        <label for="homepage">Homepage</label>
-        <input id="homepage" name="homepage" type="url" {{#if homepage}}value="{{homepage}}"{{/if}}/>
+        {{!-- <label for="homepage">Homepage</label> --}}
+        <input id="homepage" name="homepage" type="url" placeholder="homepage" {{#if homepage}}value="{{homepage}}"{{/if}}/>
     </div>
+    </div>
+    
     {{/user}}
     <input type="hidden" name="_csrf" value="{{csrfToken}}" />
-    <button type="submit">update</button>
+    <button class="button-m" type="submit">update</button>
 </form>
+</section>
+

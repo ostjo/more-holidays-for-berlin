@@ -17,6 +17,7 @@ router.get("/thanks", requireSigned, (req, res) => {
                 count: result[0].rows[0].count,
                 signature: result[1].rows[0].signature,
                 signer: {
+                    icon: result[2].rows[0].first_name.charAt(0).toLowerCase(),
                     first_name: result[2].rows[0].first_name,
                     last_name: result[2].rows[0].last_name,
                 },

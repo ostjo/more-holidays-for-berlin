@@ -1,13 +1,14 @@
 <script src="/script.js" defer></script>
-<h1>More holidays for Berlin! ☃︎</h1>
-<h2>Holidays are the </h2>
-<form method="POST">
-    <h3>Sign here</h3>
-    <input id="signature" name="signature" type="hidden">
-    <canvas id="canvas" width="600px" height="150px"></canvas>
-    <input type="hidden" name="_csrf" value="{{csrfToken}}">
-    <button type="submit">submit</button>
-    {{#if error}}
-    {{>submitError}}
-    {{/if}}
-</form>
+{{>navbar}}
+<section class="content nav-offset title">
+    <h3>Sign here:</h3>
+    <form method="POST">
+        <input id="signature" name="signature" type="hidden">
+        <canvas id="canvas" class="signature" width="800px" height="250px"></canvas>
+        <input type="hidden" name="_csrf" value="{{csrfToken}}">
+        <button class="button-m" type="submit">submit</button>
+        {{#if error}}
+        {{>submitError}}
+        {{/if}}
+    </form>
+</section>
