@@ -241,6 +241,7 @@ footer {
 .signature {
     border-radius: 15px;
     background-color: white;
+    z-index: 2;
 }
 
 button,
@@ -312,6 +313,7 @@ hr {
     padding: 15px 60px;
     background-color: rgb(168 175 255);
     position: fixed;
+    z-index: 3;
 }
 
 .content {
