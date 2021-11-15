@@ -32,9 +32,17 @@ const requireSigned = (req, res, next) => {
     next();
 };
 
+const requireJustSigned = (req, res, next) => {
+    if (!req.session.justSigned) {
+        return res.redirect("/profile/edit");
+    }
+    next();
+};
+
 module.exports = {
     requireLoggedIn,
     requireNotLoggedIn,
     requireNotSigned,
     requireSigned,
+    requireJustSigned,
 };

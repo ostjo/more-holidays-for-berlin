@@ -18,8 +18,10 @@ router.post("/register", requireNotLoggedIn, (req, res) => {
             // insert the user's first name, last name, email and HASHED PW into the database
             db.addUser(first_name, last_name, email, hashedPw)
                 .then(({ rows }) => {
-                    // if everything goes ewll, store the user's id in a cookie
+                    // if everything goes well, store the user's id in a cookie
                     req.session.userId = rows[0].id;
+                    // store a cookie to indicate that user has just signed
+                    req.session.justSigned = true;
                     // then redirect the user to the petition route so they can sign your petition!
                     res.redirect("/profile");
                 })
@@ -67,6 +69,8 @@ router.post("/login", requireNotLoggedIn, (req, res) => {
                             // user has already signed the petition
                             req.session.signatureId = id;
                         }
+
+                        delete req.session.justSigned;
 
                         // then redirect them to where it makes sense for your dataflow
                         res.redirect("/thanks");

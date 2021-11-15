@@ -1,16 +1,19 @@
 const express = require("express");
-const { requireLoggedIn } = require("../middleware/authorization.js");
+const {
+    requireLoggedIn,
+    requireJustSigned,
+} = require("../middleware/authorization.js");
 const db = require("../db.js");
 const { hash } = require("../bc.js");
 const { capitalizeWord } = require("../format-utils.js");
 
 const router = express.Router();
 
-router.get("/", requireLoggedIn, (req, res) =>
+router.get("/", requireLoggedIn, requireJustSigned, (req, res) =>
     res.render("registration-profile")
 );
 
-router.post("/", requireLoggedIn, (req, res) => {
+router.post("/", requireLoggedIn, requireJustSigned, (req, res) => {
     const { age, city, homepage } = req.body;
     const { userId } = req.session;
     db.addProfile(userId, age, city, homepage)

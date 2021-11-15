@@ -8,6 +8,7 @@ const db = require("../db.js");
 const router = express.Router();
 
 router.get("/", requireLoggedIn, requireNotSigned, (req, res) => {
+    delete req.session.justSigned;
     return res.render("petition");
 });
 
