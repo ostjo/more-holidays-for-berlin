@@ -1,4 +1,6 @@
 (function () {
+    const stars = document.getElementsByClassName("svg-animated");
+
     function randomPosBetween(min, max) {
         return Math.random() * (max - min) + min;
     }
@@ -12,7 +14,6 @@
         let docWidth = window.innerWidth;
 
         // set them to random positions
-        const stars = document.getElementsByClassName("svg-animated");
 
         const maxY = docHeight - stars[0].clientHeight / 2;
         let maxX;
@@ -27,7 +28,10 @@
         }
     }
 
-    setInterval(function () {
-        setStarToRandomPos();
-    }, 2000);
+    stars[0].addEventListener(
+        "animationstart",
+        setInterval(function () {
+            setStarToRandomPos();
+        }, 2000)
+    );
 })();
