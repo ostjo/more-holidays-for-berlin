@@ -17,10 +17,14 @@ router.post("/", requireLoggedIn, requireJustSigned, (req, res) => {
     const { age, city, homepage } = req.body;
     const { userId } = req.session;
     db.addProfile(userId, age, city, homepage)
-        .then(res.redirect("/petition"))
+        .then(() => {
+            res.redirect("/petition");
+        })
         .catch((err) => {
             console.log("error in POST add profile:", err);
-            res.sendStatus(500);
+            return res.render("registration-profile", {
+                error: "We saw that! Only give valid information, please.",
+            });
         });
 });
 

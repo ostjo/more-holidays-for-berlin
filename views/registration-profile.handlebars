@@ -19,6 +19,9 @@
                 placeholder="homepage"
             />
         </div>
+        {{#if error}}
+            <p>{{error}}</p>
+        {{/if}}
         <input type="hidden" name="_csrf" value="{{csrfToken}}" />
         <button class="button-m" type="submit">continue</button>
     </form>
