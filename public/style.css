@@ -40,6 +40,7 @@ h3 strong {
 
 canvas {
     margin-bottom: 20px;
+    touch-action: pan-x;
 }
 
 ::placeholder {
