@@ -62,7 +62,18 @@ app.use(function (req, res, next) {
 });
 
 // secure app by setting various HTTP headers (automated by helmet)
-app.use(helmet());
+// app.use(helmet());
+
+app.use(
+    helmet.contentSecurityPolicy({
+        useDefaults: false,
+        directives: {
+            "default-src":
+                helmet.contentSecurityPolicy.dangerouslyDisableDefaultSrc,
+            "script-src": ["'self'"],
+        },
+    })
+);
 
 //----------------------------------------------------------- Logging ---------------------------------------------------------------//
 app.use((req, res, next) => {
