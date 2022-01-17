@@ -22,6 +22,6 @@ In addition to Handlebars, **MHFB** uses the following
   &emsp;keeps track of current session (logged in user)
 </details>
 <details>
-  <summary><strong>Canvas Element</strong></summary>
+  <summary><strong>Canvas</strong></summary>
   &emsp;creates the canvas to sign on 
 </details>
